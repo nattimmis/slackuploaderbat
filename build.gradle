@@ -1,0 +1,55 @@
+import proguard.gradle.ProGuardTask
+
+buildscript {
+    ext.kotlin_version = '1.0.6'
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'net.sf.proguard:proguard-gradle:5.3.2'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+apply plugin: 'kotlin'
+
+sourceCompatibility = '1.8'
+mainClassName = 'net.gouline.slackuploader.AppKt'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile 'com.beust:jcommander:1.60'
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+}
+
+shadowJar {
+    baseName = rootProject.name
+    classifier = 'shadow'
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+task proguard(type: ProGuardTask) {
+    configuration 'proguard.txt'
+
+    injars "build/libs/${rootProject.name}-shadow.jar"
+    outjars "build/libs/${rootProject.name}-shadow-minified.jar"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
